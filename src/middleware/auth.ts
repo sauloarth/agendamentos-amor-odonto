@@ -37,6 +37,35 @@ const authenticate = async (req: Request, res: Response, next: NextFunction): Pr
   }
 };
 
+const authenticateOptional = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    next();
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET não definida nas variáveis de ambiente');
+  }
+
+  const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
+  const user = await User.findById(decoded.id).select('-password');
+
+  if (user) {
+    req.user = user;
+  }
+
+  next();
+};
+
 const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user || !roles.includes(req.user.role)) {
@@ -47,4 +76,4 @@ const authorize = (...roles: string[]) => {
   };
 };
 
-export { authenticate, authorize };
+export { authenticate, authenticateOptional, authorize };

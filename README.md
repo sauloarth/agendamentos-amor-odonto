@@ -24,7 +24,7 @@ npm run seed:admin -- seuemail@exemplo.com senha123 "Seu Nome"
 
 ## Próximos passos
 
-- Model `Service` (serviços oferecidos)
+- Model `Product` (serviços oferecidos)
 - Model `Availability` (horários do admin)
 - Model `Appointment` (agendamentos) + validação de conflito de horário
 - Rotas `/api/appointments` (cliente) e `/api/admin/*` (admin)
