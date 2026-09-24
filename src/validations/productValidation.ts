@@ -4,6 +4,7 @@ const createProductSchema = z.object({
   name: z.string().trim().min(1, 'Nome é obrigatório'),
   durationMinutes: z.number().int().positive('Duração deve ser maior que zero'),
   price: z.number().nonnegative('Preço não pode ser negativo'),
+  professionals: z.array(z.string().trim().min(1)).optional(),
 });
 
 const updateProductSchema = z.object({
@@ -11,6 +12,7 @@ const updateProductSchema = z.object({
   durationMinutes: z.number().int().positive('Duração deve ser maior que zero').optional(),
   price: z.number().nonnegative('Preço não pode ser negativo').optional(),
   active: z.boolean().optional(),
+  professionals: z.array(z.string().trim().min(1)).optional(),
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;

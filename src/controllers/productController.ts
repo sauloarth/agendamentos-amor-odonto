@@ -16,7 +16,8 @@ const create = asyncHandler(async (req: Request<{}, {}, CreateProductInput>, res
 
 const list = asyncHandler(async (req: Request, res: Response) => {
   const isAdmin = req.user?.role === 'admin';
-  const products = await listProducts(isAdmin);
+  const professionalId = typeof req.query.professional === 'string' ? req.query.professional : undefined;
+  const products = await listProducts(isAdmin, professionalId);
   res.json(products);
 });
 

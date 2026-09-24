@@ -21,10 +21,10 @@ npm run seed:admin -- seuemail@exemplo.com senha123 "Seu Nome"
 | POST | /api/auth/register | público | Cria usuário como `client` |
 | POST | /api/auth/login | público | Retorna token JWT |
 | GET | /api/auth/me | autenticado | Retorna dados do usuário logado |
-| GET | /api/products | público (opcional) | Lista produtos ativos (admin vê todos) |
-| GET | /api/products/:id | público (opcional) | Detalha um produto |
-| POST | /api/products | admin | Cria produto |
-| PATCH | /api/products/:id | admin | Atualiza produto (inclui ativar/desativar) |
+| GET | /api/products | público (opcional) | Lista produtos ativos (admin vê todos); aceita `?professional=<id>` para filtrar |
+| GET | /api/products/:id | público (opcional) | Detalha um produto (profissionais vinculados populados) |
+| POST | /api/products | admin | Cria produto (aceita `professionals`: IDs de Users com role `professional`) |
+| PATCH | /api/products/:id | admin | Atualiza produto (inclui ativar/desativar e alterar `professionals`) |
 | GET | /api/blocks | admin, professional | Lista bloqueios (admin: todos; professional: só os seus) |
 | GET | /api/blocks/:id | admin, professional (dono) | Detalha um bloqueio |
 | POST | /api/blocks | admin, professional | Cria bloqueio (único ou recorrente) |
