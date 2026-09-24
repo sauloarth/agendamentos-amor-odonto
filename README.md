@@ -1,6 +1,6 @@
 # Sistema de agendamentos para clínica odontológica
 
-API base de um sistema de agendamento com autenticação JWT e dois níveis de permissão (`client` e `admin`).
+API base de um sistema de agendamento com autenticação JWT e três níveis de permissão (`client`, `professional` e `admin`).
 
 ## Setup
 
@@ -21,11 +21,18 @@ npm run seed:admin -- seuemail@exemplo.com senha123 "Seu Nome"
 | POST | /api/auth/register | público | Cria usuário como `client` |
 | POST | /api/auth/login | público | Retorna token JWT |
 | GET | /api/auth/me | autenticado | Retorna dados do usuário logado |
+| GET | /api/products | público (opcional) | Lista produtos ativos (admin vê todos) |
+| GET | /api/products/:id | público (opcional) | Detalha um produto |
+| POST | /api/products | admin | Cria produto |
+| PATCH | /api/products/:id | admin | Atualiza produto (inclui ativar/desativar) |
+| GET | /api/blocks | admin, professional | Lista bloqueios (admin: todos; professional: só os seus) |
+| GET | /api/blocks/:id | admin, professional (dono) | Detalha um bloqueio |
+| POST | /api/blocks | admin, professional | Cria bloqueio (único ou recorrente) |
+| PATCH | /api/blocks/:id | admin, professional (dono) | Atualiza bloqueio (inclui ativar/desativar) |
+| PATCH | /api/users/:id/role | admin | Alterna papel do usuário entre `client` e `professional` |
 
 ## Próximos passos
 
-- Model `Product` (serviços oferecidos)
-- Model `Availability` (horários do admin)
 - Model `Appointment` (agendamentos) + validação de conflito de horário
 - Rotas `/api/appointments` (cliente) e `/api/admin/*` (admin)
 - Envio de e-mail com Nodemailer ao criar/cancelar agendamento
