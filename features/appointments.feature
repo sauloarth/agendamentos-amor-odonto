@@ -232,3 +232,46 @@ Feature: Appointments
         {}
         """
       Then the response status should be 404
+
+  Rule: The client is notified by email
+
+    Scenario: Booking sends a confirmation email to the client
+      When "joao" sends POST "/api/appointments" with:
+        """
+        { "productId": "{product:Cleaning}", "professionalId": "{user:ana}", "startDateTime": "{date:tomorrow at 10:00}" }
+        """
+      Then the response status should be 201
+      And an email with subject "Agendamento confirmado" should be sent to "joao"
+      And the email to "joao" should mention "Cleaning"
+      And the email to "joao" should mention "Profissional: ana"
+      And no email should be sent to "ana"
+
+    Scenario: A rejected booking sends no email
+      Given "maria" has an appointment "A1" with "ana" for "Cleaning" at "tomorrow at 10:00"
+      When "joao" sends POST "/api/appointments" with:
+        """
+        { "productId": "{product:Cleaning}", "professionalId": "{user:ana}", "startDateTime": "{date:tomorrow at 10:15}" }
+        """
+      Then the response status should be 409
+      And no email should be sent
+
+    Scenario: Cancelling sends an email to the client with the reason
+      Given "joao" has an appointment "A1" with "ana" for "Cleaning" at "tomorrow at 10:00"
+      When "ana" sends PATCH "/api/appointments/{appointment:A1}/cancel" with:
+        """
+        { "cancelReason": "Profissional doente" }
+        """
+      Then the response status should be 200
+      And an email with subject "Agendamento cancelado" should be sent to "joao"
+      And the email to "joao" should mention "Motivo: Profissional doente"
+      And no email should be sent to "ana"
+
+    Scenario: A failing email server does not prevent booking
+      Given the email server is unavailable
+      When "joao" sends POST "/api/appointments" with:
+        """
+        { "productId": "{product:Cleaning}", "professionalId": "{user:ana}", "startDateTime": "{date:tomorrow at 10:00}" }
+        """
+      Then the response status should be 201
+      And the response should contain:
+        | status | scheduled |

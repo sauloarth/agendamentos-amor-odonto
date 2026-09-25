@@ -5,6 +5,7 @@ import User, { IUser } from '../models/User';
 import AppError from '../utils/AppError';
 import { CreateAppointmentInput, CancelAppointmentInput } from '../validations/appointmentValidation';
 import { assertProfessionalOffersProduct, isBlockConflicting } from './scheduleUtils';
+import { notifyAppointmentCreated, notifyAppointmentCancelled } from './appointmentNotifications';
 
 const CLIENT_POPULATE_FIELDS = 'name email phone';
 const PROFESSIONAL_POPULATE_FIELDS = 'name email phone';
@@ -86,7 +87,10 @@ const createAppointment = async (input: CreateAppointmentInput, requester: IUser
     status: 'scheduled',
   });
 
-  return populateAppointment(appointment);
+  const populated = await populateAppointment(appointment);
+  await notifyAppointmentCreated(populated);
+
+  return populated;
 };
 
 interface AppointmentFilters {
@@ -149,7 +153,10 @@ const cancelAppointment = async (
   appointment.cancelReason = input.cancelReason;
   await appointment.save();
 
-  return populateAppointment(appointment);
+  const populated = await populateAppointment(appointment);
+  await notifyAppointmentCancelled(populated);
+
+  return populated;
 };
 
 export { createAppointment, listAppointments, getAppointmentById, cancelAppointment };

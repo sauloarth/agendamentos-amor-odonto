@@ -1,5 +1,6 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import request, { Response } from 'supertest';
+import { SendMailOptions } from 'nodemailer';
 import app from '../../src/app';
 import { parseRelativeDate } from './dates';
 
@@ -23,6 +24,7 @@ export class ApiWorld extends World {
   users = new Map<string, TestUser>();
   ids = new Map<string, string>();
   response?: Response;
+  sentEmails: SendMailOptions[] = [];
 
   constructor(options: IWorldOptions) {
     super(options);

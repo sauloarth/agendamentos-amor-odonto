@@ -1407,7 +1407,7 @@
           "Appointments"
         ],
         "summary": "Criar agendamento",
-        "description": "Agenda um procedimento para o cliente logado. Somente `client`. Regras:\n- o produto deve existir e estar ativo;\n- o profissional deve ter papel `professional` e estar vinculado ao produto;\n- `startDateTime` deve ser futuro; o fim é calculado como início + `durationMinutes` do produto;\n- o agendamento não pode ultrapassar a meia-noite;\n- o horário não pode conflitar com outro agendamento do profissional nem com bloqueios (dele ou gerais) — caso contrário retorna 409.\n\nDica: consulte `GET /api/availability` antes para obter horários livres.",
+        "description": "Agenda um procedimento para o cliente logado. Somente `client`. Regras:\n- o produto deve existir e estar ativo;\n- o profissional deve ter papel `professional` e estar vinculado ao produto;\n- `startDateTime` deve ser futuro; o fim é calculado como início + `durationMinutes` do produto;\n- o agendamento não pode ultrapassar a meia-noite;\n- o horário não pode conflitar com outro agendamento do profissional nem com bloqueios (dele ou gerais) — caso contrário retorna 409.\n\nDica: consulte `GET /api/availability` antes para obter horários livres.\n\nO cliente recebe um e-mail de confirmação; uma falha no envio é apenas logada e não afeta a resposta.",
         "security": [
           {
             "bearerAuth": []
@@ -1517,7 +1517,7 @@
           "Appointments"
         ],
         "summary": "Cancelar agendamento",
-        "description": "Cancela um agendamento, liberando o horário. Pode ser feito pelo cliente ou profissional participantes, ou por admin. Aceita um motivo opcional. Retorna 400 se o agendamento já estiver cancelado.",
+        "description": "Cancela um agendamento, liberando o horário. Pode ser feito pelo cliente ou profissional participantes, ou por admin. Aceita um motivo opcional. Retorna 400 se o agendamento já estiver cancelado.\n\nO cliente recebe um e-mail de cancelamento (com o motivo, se informado); uma falha no envio é apenas logada e não afeta a resposta.",
         "security": [
           {
             "bearerAuth": []

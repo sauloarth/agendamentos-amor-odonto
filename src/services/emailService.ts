@@ -47,5 +47,10 @@ const sendEmail = async (input: SendEmailInput): Promise<SendEmailResult> => {
   return { messageId: info.messageId };
 };
 
-export { sendEmail };
+// Permite aos testes injetar um transporter falso; `null` volta a usar o SMTP do .env.
+const setTransporter = (custom: Transporter | null): void => {
+  transporter = custom;
+};
+
+export { sendEmail, setTransporter };
 export type { SendEmailInput };

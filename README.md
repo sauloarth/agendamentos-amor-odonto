@@ -14,7 +14,6 @@ API REST para agendamento de consultas em clínica odontológica. Pacientes cons
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Testes](#testes)
 - [Scripts](#scripts)
-- [Próximos passos](#próximos-passos)
 
 ## Funcionalidades
 
@@ -23,6 +22,7 @@ API REST para agendamento de consultas em clínica odontológica. Pacientes cons
 - **Bloqueios de agenda** únicos (ex.: uma tarde) ou recorrentes (ex.: almoço de segunda a sexta), por profissional ou para a clínica inteira.
 - **Disponibilidade**: cálculo dos horários livres de um profissional para um procedimento em um período.
 - **Agendamentos** com validação de conflitos, listagem por papel e cancelamento.
+- **E-mails ao cliente** (Nodemailer/SMTP) quando um agendamento é confirmado ou cancelado. Falhas no envio são logadas e não afetam a requisição.
 - **Documentação interativa** OpenAPI 3.0 com Swagger UI.
 
 ## Primeiros passos
@@ -193,7 +193,3 @@ Convenções usadas nos cenários:
 | `npm run seed:admin -- <email> <senha> "<nome>"` | Cria um usuário admin |
 
 O projeto ainda não tem lint configurado.
-
-## Próximos passos
-
-- Envio de e-mail ao criar ou cancelar agendamentos (o serviço genérico já existe em `src/services/emailService.ts`)
