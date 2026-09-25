@@ -1,5 +1,5 @@
-Feature: User roles
-  Admins turn clients into professionals and back.
+Feature: Users
+  Admins list users and turn clients into professionals and back.
 
   Background:
     Given an admin "admin"
@@ -48,6 +48,51 @@ Feature: User roles
       """
       { "role": "professional" }
       """
+    Then the response status should be 403
+
+    Examples:
+      | user |
+      | joao |
+      | ana  |
+
+  Scenario: An admin lists every user sorted by name
+    When "admin" sends GET "/api/users"
+    Then the response status should be 200
+    And the "name" of the listed items should be:
+      | admin |
+      | ana   |
+      | joao  |
+    And the response should not have a "0.password"
+
+  Scenario: An admin filters users by role
+    When "admin" sends GET "/api/users?role=professional"
+    Then the response status should be 200
+    And the "_id" of the listed items should be:
+      | {user:ana} |
+
+  Scenario: An admin searches users by part of the name or e-mail
+    Given a client "joana"
+    When "admin" sends GET "/api/users?search=JOA"
+    Then the "name" of the listed items should be:
+      | joana |
+      | joao  |
+    When "admin" sends GET "/api/users?search=ana@test"
+    Then the "name" of the listed items should be:
+      | ana   |
+      | joana |
+
+  Scenario: Searching with regex characters matches them literally
+    When "admin" sends GET "/api/users?search=.*"
+    Then the response status should be 200
+    And the response should be a list with 0 items
+
+  Scenario: Filtering by an unknown role
+    When "admin" sends GET "/api/users?role=dentist"
+    Then the response status should be 400
+    And the validation errors should include field "role"
+
+  Scenario Outline: Only admins can list users
+    When "<user>" sends GET "/api/users"
     Then the response status should be 403
 
     Examples:

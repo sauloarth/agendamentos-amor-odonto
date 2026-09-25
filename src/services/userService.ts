@@ -1,7 +1,22 @@
 import Product from '../models/Product';
 import User, { IUser } from '../models/User';
 import AppError from '../utils/AppError';
-import { UpdateUserRoleInput } from '../validations/userValidation';
+import { ListUsersQuery, UpdateUserRoleInput } from '../validations/userValidation';
+
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const listUsers = async ({ role, search }: ListUsersQuery): Promise<IUser[]> => {
+  const filter: Record<string, unknown> = {};
+  if (role) {
+    filter.role = role;
+  }
+  const term = search?.trim();
+  if (term) {
+    const pattern = new RegExp(escapeRegex(term), 'i');
+    filter.$or = [{ name: pattern }, { email: pattern }];
+  }
+  return User.find(filter).select('-password').sort({ name: 1 });
+};
 
 const updateUserRole = async (id: string, input: UpdateUserRoleInput): Promise<IUser> => {
   const existing = await User.findById(id);
@@ -27,4 +42,4 @@ const updateUserRole = async (id: string, input: UpdateUserRoleInput): Promise<I
   return user;
 };
 
-export { updateUserRole };
+export { listUsers, updateUserRole };

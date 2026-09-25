@@ -1,8 +1,13 @@
 import { Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { updateUserRole } from '../services/userService';
-import { UpdateUserRoleInput } from '../validations/userValidation';
+import { listUsers, updateUserRole } from '../services/userService';
+import { ListUsersQuery, UpdateUserRoleInput } from '../validations/userValidation';
 import asyncHandler from '../utils/asyncHandler';
+
+const list = asyncHandler(async (req: Request, res: Response) => {
+  const users = await listUsers(req.query as ListUsersQuery);
+  res.json(users);
+});
 
 const updateRole = asyncHandler(
   async (req: Request<ParamsDictionary, {}, UpdateUserRoleInput>, res: Response) => {
@@ -11,4 +16,4 @@ const updateRole = asyncHandler(
   }
 );
 
-export { updateRole };
+export { list, updateRole };

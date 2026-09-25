@@ -92,10 +92,10 @@ A especificação fica em [`src/docs/openapi.json`](src/docs/openapi.json) e é 
 
 | Recurso | Base | Descrição |
 |---|---|---|
-| Auth | `/api/auth` | Cadastro, login e dados do usuário logado |
+| Auth | `/api/auth` | Cadastro, login, dados do usuário logado e edição do próprio perfil (nome, telefone, senha) |
 | Produtos | `/api/products` | Procedimentos oferecidos pela clínica |
 | Bloqueios | `/api/blocks` | Períodos em que não é possível agendar |
-| Usuários | `/api/users` | Alteração de papel (`client` ↔ `professional`) |
+| Usuários | `/api/users` | Listagem com filtro por papel e busca por nome/e-mail; alteração de papel (`client` ↔ `professional`) |
 | Agendamentos | `/api/appointments` | Criação, consulta e cancelamento |
 | Disponibilidade | `/api/availability` | Horários livres de um profissional para um procedimento |
 
@@ -105,11 +105,12 @@ A especificação fica em [`src/docs/openapi.json`](src/docs/openapi.json) e é 
 |---|---|---|
 | `client` | `POST /api/auth/register` | Ver procedimentos e horários livres; criar, listar e cancelar os **próprios** agendamentos. |
 | `professional` | Admin promove um `client` via `PATCH /api/users/:id/role` | Ver a **própria** agenda; cancelar agendamentos em que participa; criar e editar os **próprios** bloqueios. |
-| `admin` | `npm run seed:admin` | Acesso total: procedimentos, bloqueios de qualquer profissional ou da clínica, papéis de usuários e todos os agendamentos. |
+| `admin` | `npm run seed:admin` | Acesso total: procedimentos, bloqueios de qualquer profissional ou da clínica, listagem e papéis de usuários e todos os agendamentos. |
 
 Observações:
 
-- Rotas de listagem de produtos e disponibilidade são públicas; com token de admin, a listagem de produtos inclui os inativos.
+- Rotas de listagem de produtos e disponibilidade são públicas; com token de admin, a listagem de produtos inclui os inativos. Um token inválido ou expirado nessas rotas responde `401` (sem token, seguem anônimas).
+- Todo usuário edita o próprio perfil em `PATCH /api/auth/me` (nome, telefone, senha); e-mail e papel não mudam por ali. Trocar a senha exige `currentPassword`.
 - Recursos de outros usuários retornam `404` (e não `403`), para não revelar a existência deles.
 - Quando um `professional` volta a ser `client`, ele é removido automaticamente de todos os produtos.
 

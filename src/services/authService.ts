@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
 import AppError from '../utils/AppError';
-import { RegisterInput, LoginInput } from '../validations/authValidation';
+import { RegisterInput, LoginInput, UpdateProfileInput } from '../validations/authValidation';
 
 interface AuthResult {
   _id: string;
@@ -69,4 +69,38 @@ const loginUser = async (input: LoginInput): Promise<AuthResult> => {
   return toAuthResult(user);
 };
 
-export { registerUser, loginUser };
+const updateProfile = async (userId: string, input: UpdateProfileInput): Promise<IUser> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError('Usuário não encontrado', 404);
+  }
+
+  if (input.newPassword !== undefined) {
+    const isMatch = await bcrypt.compare(input.currentPassword ?? '', user.password);
+    if (!isMatch) {
+      // 400, não 401: o frontend encerra a sessão em qualquer 401 com token.
+      throw new AppError('Senha atual incorreta', 400);
+    }
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(input.newPassword, salt);
+  }
+
+  if (input.name !== undefined) {
+    user.name = input.name;
+  }
+  if (input.phone === null) {
+    user.set('phone', undefined);
+  } else if (input.phone !== undefined) {
+    user.phone = input.phone;
+  }
+
+  await user.save();
+
+  const updated = await User.findById(userId).select('-password');
+  if (!updated) {
+    throw new AppError('Usuário não encontrado', 404);
+  }
+  return updated;
+};
+
+export { registerUser, loginUser, updateProfile };

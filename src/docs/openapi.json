@@ -723,6 +723,35 @@
             }
           }
         }
+      },
+      "UpdateProfileInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "description": "Envie ao menos um campo. `email` e `role` não são editáveis por aqui.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Maria Silva"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": true,
+            "example": "(11) 99999-0000",
+            "description": "`null` remove o telefone"
+          },
+          "currentPassword": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Obrigatória quando `newPassword` é enviada"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 6
+          }
+        }
       }
     },
     "responses": {
@@ -935,6 +964,46 @@
             "$ref": "#/components/responses/Unauthorized"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Atualizar o próprio perfil",
+        "description": "Atualiza nome, telefone e/ou senha do usuário dono do token e retorna os dados atualizados (sem a senha). Para trocar a senha, envie `currentPassword` e `newPassword`; senha atual incorreta responde `400` (não `401`, para não encerrar a sessão).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Perfil atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
       }
     },
     "/api/products": {
@@ -943,7 +1012,7 @@
           "Products"
         ],
         "summary": "Listar produtos",
-        "description": "Lista os procedimentos da clínica, ordenados por nome, com os profissionais vinculados. Autenticação é opcional: visitantes e usuários não-admin veem apenas produtos ativos; admin vê todos, inclusive inativos. Use `professional` para listar apenas os procedimentos realizados por um profissional.",
+        "description": "Lista os procedimentos da clínica, ordenados por nome, com os profissionais vinculados. Autenticação é opcional: visitantes e usuários não-admin veem apenas produtos ativos; admin vê todos, inclusive inativos. Use `professional` para listar apenas os procedimentos realizados por um profissional. Um token inválido ou expirado responde `401`.",
         "security": [
           {},
           {
@@ -976,6 +1045,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       },
@@ -1048,7 +1120,7 @@
           "Products"
         ],
         "summary": "Detalhar produto",
-        "description": "Retorna um procedimento com os profissionais vinculados. Produtos inativos só são visíveis para admin (para os demais, retorna 404).",
+        "description": "Retorna um procedimento com os profissionais vinculados. Produtos inativos só são visíveis para admin (para os demais, retorna 404). Um token inválido ou expirado responde `401`.",
         "security": [
           {},
           {
@@ -1068,6 +1140,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       },
@@ -1285,6 +1360,64 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Listar usuários",
+        "description": "Lista os usuários (sem a senha), ordenados por nome. Somente admin. Use `role` para filtrar por papel e `search` para buscar por parte do nome ou do e-mail (sem diferenciar maiúsculas).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Role"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Trecho do nome ou e-mail",
+            "schema": {
+              "type": "string",
+              "example": "maria"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
         }
       }
@@ -1565,7 +1698,7 @@
           "Availability"
         ],
         "summary": "Horários disponíveis",
-        "description": "Calcula os horários livres de um profissional para um produto dentro do período `[dateStart, dateEnd]` (máximo de 90 dias). Os slots são sequenciais com a duração do produto, a partir de `dateStart`; são descartados slots no passado, que atravessam a meia-noite ou que conflitam com agendamentos ou bloqueios ativos. O produto deve estar ativo e o profissional vinculado a ele. Autenticação opcional.",
+        "description": "Calcula os horários livres de um profissional para um produto dentro do período `[dateStart, dateEnd]` (máximo de 90 dias). Os slots são sequenciais com a duração do produto, a partir de `dateStart`; são descartados slots no passado, que atravessam a meia-noite ou que conflitam com agendamentos ou bloqueios ativos. O produto deve estar ativo e o profissional vinculado a ele. Autenticação opcional. Um token inválido ou expirado responde `401`.",
         "security": [
           {},
           {
@@ -1642,6 +1775,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }

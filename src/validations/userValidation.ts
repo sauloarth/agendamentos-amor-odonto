@@ -4,6 +4,12 @@ const updateUserRoleSchema = z.object({
   role: z.enum(['client', 'professional']),
 });
 
-export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+const listUsersQuerySchema = z.object({
+  role: z.enum(['client', 'professional', 'admin']).optional(),
+  search: z.string().trim().min(1).optional(),
+});
 
-export { updateUserRoleSchema };
+export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
+
+export { updateUserRoleSchema, listUsersQuerySchema };
