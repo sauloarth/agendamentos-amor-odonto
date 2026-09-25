@@ -9,6 +9,7 @@ import productRoutes from './routes/productRoutes';
 import blockRoutes from './routes/blockRoutes';
 import userRoutes from './routes/userRoutes';
 import appointmentRoutes from './routes/appointmentRoutes';
+import availabilityRoutes from './routes/availabilityRoutes';
 import errorHandler from './middleware/errorHandler';
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/blocks', blockRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 app.get('/', (req, res) => {
   res.json({ status: 'API rodando' });

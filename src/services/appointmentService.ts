@@ -1,9 +1,10 @@
 import Appointment, { IAppointment } from '../models/Appointment';
-import Product, { IProduct } from '../models/Product';
-import Block, { IBlock } from '../models/Block';
+import Product from '../models/Product';
+import Block from '../models/Block';
 import User, { IUser } from '../models/User';
 import AppError from '../utils/AppError';
 import { CreateAppointmentInput, CancelAppointmentInput } from '../validations/appointmentValidation';
+import { assertProfessionalOffersProduct, isBlockConflicting } from './scheduleUtils';
 
 const CLIENT_POPULATE_FIELDS = 'name email phone';
 const PROFESSIONAL_POPULATE_FIELDS = 'name email phone';
@@ -14,40 +15,6 @@ const populateAppointment = (appointment: IAppointment) =>
     .populate('client', CLIENT_POPULATE_FIELDS)
     .then((a) => a.populate('professional', PROFESSIONAL_POPULATE_FIELDS))
     .then((a) => a.populate('product', PRODUCT_POPULATE_FIELDS));
-
-const assertProfessionalOffersProduct = (product: IProduct, professionalId: string): void => {
-  const offers = product.professionals.some((p) => p.toString() === professionalId);
-  if (!offers) {
-    throw new AppError('Profissional não realiza este produto', 400);
-  }
-};
-
-const toHHmm = (date: Date): string => {
-  const h = String(date.getHours()).padStart(2, '0');
-  const m = String(date.getMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
-};
-
-const isBlockConflicting = (block: IBlock, start: Date, end: Date): boolean => {
-  if (block.type === 'single') {
-    return block.startDateTime! < end && block.endDateTime! > start;
-  }
-
-  const weekday = start.getDay();
-  if (!block.daysOfWeek!.includes(weekday)) {
-    return false;
-  }
-  if (block.validFrom && start < block.validFrom) {
-    return false;
-  }
-  if (block.validUntil && start > block.validUntil) {
-    return false;
-  }
-
-  const startHHmm = toHHmm(start);
-  const endHHmm = toHHmm(end);
-  return block.startTime! < endHHmm && block.endTime! > startHHmm;
-};
 
 const assertSlotAvailable = async (
   professionalId: string,

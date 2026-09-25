@@ -21,4 +21,23 @@ const validateBody = (schema: ZodType) => {
   };
 };
 
-export { validateBody };
+const validateQuery = (schema: ZodType) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.query);
+
+    if (!result.success) {
+      res.status(400).json({
+        message: 'Dados inválidos',
+        errors: result.error.issues.map((issue) => ({
+          field: issue.path.join('.'),
+          message: issue.message,
+        })),
+      });
+      return;
+    }
+
+    next();
+  };
+};
+
+export { validateBody, validateQuery };
