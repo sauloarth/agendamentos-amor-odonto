@@ -12,6 +12,7 @@ API REST para agendamento de consultas em clínica odontológica. Pacientes cons
 - [Papéis e permissões](#papéis-e-permissões)
 - [Regras de agendamento](#regras-de-agendamento)
 - [Estrutura do projeto](#estrutura-do-projeto)
+- [Testes](#testes)
 - [Scripts](#scripts)
 - [Próximos passos](#próximos-passos)
 
@@ -130,7 +131,8 @@ A consulta de disponibilidade (`GET /api/availability`) aplica as mesmas regras 
 
 ```
 src/
-├── server.ts          # Bootstrap do Express, rotas e Swagger
+├── app.ts             # App Express: middlewares, rotas e Swagger
+├── server.ts          # Conecta no MongoDB e sobe o servidor HTTP
 ├── config/db.ts       # Conexão com o MongoDB
 ├── routes/            # Verbos/rotas + middlewares de auth e validação
 ├── controllers/       # Camada HTTP (req/res)
@@ -155,6 +157,30 @@ Formato das respostas de erro:
 { "message": "Dados inválidos", "errors": [{ "field": "email", "message": "E-mail inválido" }] }
 ```
 
+## Testes
+
+Testes de aceitação em [Cucumber](https://cucumber.io/) (Gherkin, em inglês) que exercitam a API via HTTP de ponta a ponta, usando um MongoDB em memória ([mongodb-memory-server](https://github.com/typegoose/mongodb-memory-server)). Não é preciso ter MongoDB nem `.env`.
+
+```bash
+npm test
+```
+
+> A primeira execução baixa o binário do MongoDB, o que pode levar alguns segundos.
+
+```
+features/
+├── *.feature                 # Cenários por recurso (auth, products, blocks, users, appointments, availability)
+├── step_definitions/         # Passos reutilizáveis (requisições, asserções, fixtures)
+└── support/                  # World (cliente HTTP + estado), hooks do banco, datas relativas
+```
+
+Convenções usadas nos cenários:
+
+- `Given a client "joao"` cria o usuário `joao@test.com` (senha `secret123`) já com token; também há `a professional` e `an admin`.
+- Caminhos e corpos JSON aceitam placeholders: `{user:ana}`, `{product:Cleaning}`, `{block:lunch}`, `{appointment:A1}` viram o ID da entidade, e `{date:tomorrow at 10:00}` vira uma data ISO. Formatos de data aceitos: `today`, `tomorrow`, `yesterday`, `in N days` e `next monday`, sempre seguidos de `at HH:mm`.
+- Os testes rodam no fuso `America/Sao_Paulo` e o banco é limpo antes de cada cenário.
+- Cenários marcados com `@known-bug` documentam bugs ainda não corrigidos. Eles ficam fora do `npm test` e podem ser rodados com `npx cucumber-js --profile known-bugs`.
+
 ## Scripts
 
 | Comando | Descrição |
@@ -162,12 +188,12 @@ Formato das respostas de erro:
 | `npm run dev` | Servidor em modo desenvolvimento (`tsx watch`) |
 | `npm run build` | Compila TypeScript para `dist/` |
 | `npm start` | Executa a build compilada |
+| `npm test` | Roda os testes de aceitação (Cucumber) |
 | `npm run seed:admin -- <email> <senha> "<nome>"` | Cria um usuário admin |
 
-O projeto ainda não tem testes automatizados nem lint configurados.
+O projeto ainda não tem lint configurado.
 
 ## Próximos passos
 
 - Envio de e-mail (Nodemailer) ao criar ou cancelar agendamentos
-- Testes automatizados
 - Arquivo `.env.example` versionado
