@@ -53,6 +53,11 @@ cp .env.example .env
 | `JWT_EXPIRES_IN` | não | `7d` | Validade do token (formato do `jsonwebtoken`, ex.: `12h`, `7d`). |
 | `PORT` | não | `3000` | Porta HTTP. |
 | `TZ` | recomendada | fuso do SO | Fuso horário do processo. Veja [Regras de agendamento](#regras-de-agendamento). |
+| `SMTP_HOST` | para enviar e-mail | — | Servidor SMTP. Só é exigida quando um e-mail é enviado. |
+| `SMTP_PORT` | não | `587` | Porta SMTP. |
+| `SMTP_SECURE` | não | `false` | `true` para TLS direto (porta 465); `false` usa STARTTLS. |
+| `SMTP_USER` / `SMTP_PASS` | não | — | Credenciais SMTP; a autenticação só é usada se ambas estiverem definidas. |
+| `EMAIL_FROM` | para enviar e-mail | — | Remetente, ex.: `"Amor Odonto <nao-responda@example.com>"`. |
 
 ### Criar o primeiro admin
 
@@ -191,5 +196,4 @@ O projeto ainda não tem lint configurado.
 
 ## Próximos passos
 
-- Envio de e-mail (Nodemailer) ao criar ou cancelar agendamentos
-- Arquivo `.env.example` versionado
+- Envio de e-mail ao criar ou cancelar agendamentos (o serviço genérico já existe em `src/services/emailService.ts`)
