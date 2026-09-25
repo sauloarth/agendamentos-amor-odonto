@@ -40,14 +40,10 @@ npm install
 
 ### Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto:
+Copie o `.env.example` para `.env` na raiz do projeto e ajuste os valores:
 
-```env
-MONGO_URI=mongodb://localhost:27017/amor-odonto
-JWT_SECRET=troque-por-um-segredo-forte
-JWT_EXPIRES_IN=7d
-PORT=3000
-TZ=America/Sao_Paulo
+```bash
+cp .env.example .env
 ```
 
 | Variável | Obrigatória | Padrão | Descrição |
