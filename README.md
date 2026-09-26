@@ -52,6 +52,7 @@ cp .env.example .env
 | `JWT_SECRET` | sim | — | Segredo usado para assinar e validar os tokens. |
 | `JWT_EXPIRES_IN` | não | `7d` | Validade do token (formato do `jsonwebtoken`, ex.: `12h`, `7d`). |
 | `PORT` | não | `3000` | Porta HTTP. |
+| `CORS_ORIGINS` | em produção | `http://localhost:5173` | Origens liberadas no CORS, separadas por vírgula (ex.: URL do frontend no Render, sem `/` final). |
 | `TZ` | recomendada | fuso do SO | Fuso horário do processo. Veja [Regras de agendamento](#regras-de-agendamento). |
 | `SMTP_HOST` | para enviar e-mail | — | Servidor SMTP. Só é exigida quando um e-mail é enviado. |
 | `SMTP_PORT` | não | `587` | Porta SMTP. |
